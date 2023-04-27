@@ -1,6 +1,8 @@
 import random 
 
 # Ap CompSci Principles -- Sam Zajczenko -- Texas Holdem
+# This program simulates playing texas holdem poker with a dealer. The program has features that 
+# all the player to bet, call, fold.
 
 # Variables for all code.
 bank = 100
@@ -15,7 +17,7 @@ deck = ['2H', '2D', '2S', '2C',
         '7H', '7D', '7S', '7C',
         '8H', '8D', '8S', '8C',
         '9H', '9D', '9S', '9C',
-        '10H', '10D', '10S', '10C',
+        'TH', 'TD', 'TS', 'TC',
         'JH', 'JD', 'JS', 'JC',
         'QH', 'QD', 'QS', 'QC',
         'KH', 'KD', 'KS', 'KC',
@@ -23,9 +25,15 @@ deck = ['2H', '2D', '2S', '2C',
 
 # Shuffle Deck
 random.shuffle(deck)
-players_hand = [deck.pop, deck.pop]
-dealers_hand = [deck.pop, deck.pop]
-community_hand = [deck.pop, deck.pop, deck.pop]
+
+def start(players_hand, dealers_hand, community_hand):
+    print("Welcome to Texas Holdem. You be playing against the dealer to start please look at you cards and place a bet. ")
+    for i in range(2):
+        players_hand.append(deck.pop)
+        dealers_hand.append(deck.pop)
+        community_hand(deck.pop)
+    community_hand(deck.pop)
+    return players_hand, dealers_hand, community_hand
 
 # Betting and Probability
 scores = {
@@ -39,6 +47,17 @@ scores = {
     'Straight Flush': 80,
     'The Flop': 90,
 }
+
+def win_rate():
+    # This function will calculate a win rate for the dealer and advise them whether they should bet casino cash.
+    pass
+
+def winner():
+    pass
+
+def checking():
+    i = input(" ")
+
 def betting():
     i = input("Would you like to place a bet? (yes/no)\n")
     if i.contains("yes" or "y"):
@@ -61,18 +80,34 @@ def betting():
 
 pot = betting()
 
-def computer_raise():
+def computer_bet():
+    if win_rate() > 20: 
+        print("The dealer checks. ")
+        checking()
+        pass
+
+# Playing the game.
 
 
-# One Pair
-def one_pair(): 
-    pass
+# One Pair -- Done
+def one_pair(y):
+    x = y.append(community_hand)
+    values = [card[:-1] for card in x]
+    return any(values.count(value) == 2 for value in set(values))
 
 # Two Pair
+def two_pair(y):
+    x = y.append(community_hand)
+    values = [card[:-1] for card in x]
+    return any(values.count(value) == 2 for value in set(values))
 
-# Three of a Kind
+# Three of a Kind -- Done
+def one_pair(x):
+    values = [card[:-1] for card in x]
+    return any(values.count(value) == 3 for value in set(values))
 
 # Straight
+
 
 # Flush
 
@@ -99,4 +134,5 @@ def choice():
 playing = choice()
 
 while playing == True:
+    start(players_hand, dealers_hand, community_hand)
     pass
