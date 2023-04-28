@@ -5,7 +5,7 @@ import random
 # all the player to bet, call, fold.
 
 # Variables for all code.
-bank = 100
+bank = 100 
 players_hand = []
 dealers_hand = []
 community_hand = []
@@ -123,9 +123,9 @@ def one_pair(x):
 # Running Main Function 
 def choice():
     play = input("Would you like to play texas holdem? (yes/no)\n").lower() 
-    if play.contains("yes" or "y"):
+    if play.str.contains("yes" or "y"):
         return True
-    elif play.contains("no" or "n"):
+    elif play.str.contains("no" or "n"):
         return False
     else:
         print("Please input a valid response. \n")
