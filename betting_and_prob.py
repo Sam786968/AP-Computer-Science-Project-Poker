@@ -1,8 +1,10 @@
+import math
+import random
+from variables_running_game import *
 
-# Function
  # Determine the type of hand
-def determine_hand(player_hand, community_cards):
-    all_cards = player_hand + community_cards
+def determine_hand(x, community_cards):
+    all_cards = x + community_cards
     
     # Check for pairs
     pairs = [card[0] for card in all_cards if all_cards.count(card) == 2]
@@ -62,20 +64,43 @@ def choice():
     else:
         print("Please input a valid response. \n")
         choice()
-        
+   
+   
+# Betting and Probabilities 
+def win_rate():
+    # This function will calculate a win rate for the dealer and advise them whether they should bet casino cash.
+    pass
 
-while choice() == True:
-    random.shuffle(deck)
-    print("Welcome to Texas Holdem. You be playing against the dealer to start please look at you cards and place a bet. ")
-    for i in range(2):
-        players_hand.append(deck.pop())
-        dealers_hand.append(deck.pop())
-        community_hand.append(deck.pop())
-    community_hand.append(deck.pop())
-    print(players_hand)
-    i = one_pair(players_hand)
-    print(i)
-    choice()
-    break
+def winner():
+    pass
+
+def checking():
+    i = input(" ")
+
+def betting():
+    i = input("Would you like to place a bet? (yes/no)\n")
+    if i.contains("yes" or "y"):
+        print(f"You have {bank} dollars. \n")
+        def item():
+            i = int(input("How much would you like to bet? "))
+            if i > bank:
+                print("Not a possible value. ")
+                item()
+            elif i <= bank:
+                print("Your bet has been placed. ")
+                return i
+            elif i <= -1:
+                print("Not a possible value. ")
+                item()
+        return item()
+    else:
+        pass
 
 
+pot = betting()
+
+def computer_bet():
+    if win_rate() > 20: 
+        print("The dealer checks. ")
+        checking()
+        pass
