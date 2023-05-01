@@ -363,41 +363,42 @@ def player_betting():
             bet = int(input(f"How much would you like to bet? (You have ${player_money}) "))
             if bet < 1:
                 print("The minimum bet is $1.")
-                betting()
+                player_betting()
             elif bet > player_money:
                 print("You do not have enough money to place that bet.")
-                betting()
+                player_betting()
             else:
                 current_bet = bet
                 player_money -= bet
-                pot = bet
+                pot += bet
                 print(f"You have placed a bet of ${bet}.")
     else:
-        response = input(f"The current bet is ${current_bet}. Would you like to call, raise, or fold? ").lower()
-        if response == "call":
-            if player_money >= current_bet:
-                player_money -= current_bet
-                print("You have called the current bet.")
-            else:
-                print("You do not have enough money to call the current bet.")
-                betting()
+        response = input(f"The current bet is ${current_bet} and the pot is ${pot}. Would you like to pass, raise, or fold? ").lower()
+        if response == "pass":
+            pass
         elif response == "raise":
-            new_bet = int(input(f"How much would you like to raise the bet to? (You have ${player_money - current_bet}) "))
+            new_bet = int(input(f"How much would you like to raise the bet to? (You have ${player_money}) "))
             if new_bet < current_bet:
                 print("You cannot raise the bet by less than the current bet.")
-                betting()
-            elif new_bet > player_money - current_bet:
+                player_betting()
+            elif new_bet > (current_bet + player_money):
                 print("You do not have enough money to raise that much.")
-                betting()
-            else:
-                current_bet = new_bet + current_bet
-                player_money -= current_bet
+                player_betting()
+            elif new_bet <= (current_bet + player_money) and new_bet > current_bet:
+                pot += (new_bet - current_bet)
+                player_money -= (new_bet - current_bet)
+                current_bet = new_bet 
                 print(f"You have raised the bet to ${current_bet}.")
+            elif new_bet == current_bet:
+                print("You cannot raise to the same bet. ")
+                player_betting()
+            else:
+                pass
         elif response == "fold":
             print("You have folded.")
         else:
             print("Invalid response.")
-            betting()
+            player_betting()
 
 def computer_decision():
     global current_bet,dealer_money, pot
@@ -406,8 +407,7 @@ def computer_decision():
     if i >= 10:
         # Calls 
         dealer_money -= current_bet
-        current_bet *= 2
-        pot *= 2
+        pot += current_bet
         print(f"The dealer calls. The pot now has {pot}.")  
     else:
         pass
