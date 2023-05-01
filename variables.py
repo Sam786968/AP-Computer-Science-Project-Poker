@@ -2,6 +2,7 @@
 current_bet = 0
 player_money = 100
 dealer_money = 100
+pot = 0
 
 players_hand = []
 dealers_hand = []
