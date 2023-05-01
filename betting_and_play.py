@@ -385,10 +385,11 @@ def player_betting():
                 print("You do not have enough money to raise that much.")
                 player_betting()
             elif new_bet <= (current_bet + player_money) and new_bet > current_bet:
-                pot += (new_bet - current_bet)
-                player_money -= (new_bet - current_bet)
+                i = new_bet - current_bet
+                pot += i
+                player_money -= i
                 current_bet = new_bet 
-                print(f"You have raised the bet to ${current_bet}.")
+                print(f"You have raised the bet to ${current_bet} and the pot to ${pot}.")
             elif new_bet == current_bet:
                 print("You cannot raise to the same bet. ")
                 player_betting()
@@ -400,16 +401,16 @@ def player_betting():
             print("Invalid response.")
             player_betting()
 
-def computer_decision():
+def computer_decision(new_bet):
     global current_bet,dealer_money, pot
     
     i = determine_computer()
     if i >= 10:
         # Calls 
-        dealer_money -= current_bet
-        pot += current_bet
+        
         print(f"The dealer calls. The pot now has {pot}.")  
-    else:
+    elif i >= 50:
+        # Raise
         pass
 
 def game_outcome():
