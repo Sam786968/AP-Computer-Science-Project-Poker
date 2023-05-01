@@ -4,171 +4,351 @@ from variables import *
 
 def determine_player():
     global players_hand, community_hand
+    """
+    This function checks the given player's hand and the community cards
+    to determine the best possible poker hand.
+    """
+    # Concatenate the player's and community cards
+    cards = players_hand + community_hand
     
-    all_cards = players_hand + community_hand
+    # Count the frequency of each rank and suit
+    ranks = {}
+    suits = {}
+    for card in cards:
+        rank, suit = card[0], card[1]
+        ranks[rank] = ranks.get(rank, 0) + 1
+        suits[suit] = suits.get(suit, 0) + 1
     
-    # Map face cards to their corresponding values
-    face_card_values = {"A": 14, "K": 13, "Q": 12, "J": 11, "T": 10, "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2}
-    all_cards = [f"{face_card_values.get(card[:-1], card[:-1])}{card[-1]}" for card in all_cards]
+    # Check for a flush
+    flush = False
+    for suit in suits:
+        if suits[suit] >= 5:
+            flush = True
+            flush_suit = suit
+            break
     
-    # Check for pairs
-    pairs = [card[0] for card in all_cards if all_cards.count(card) == 2]
-    if len(pairs) == 1:
-        return f"One pair of {pairs[0]}s"
-    elif len(pairs) == 2:
-        return f"Two pairs: {pairs[0]}s and {pairs[1]}s"
+    # Check for a straight
+    straight = False
+    for rank in ranks:
+        if ranks.get(rank) and ranks.get(chr(ord(rank)+1)) and ranks.get(chr(ord(rank)+2)) and ranks.get(chr(ord(rank)+3)) and ranks.get(chr(ord(rank)+4)):
+            straight = True
+            straight_rank = rank
+            break
+        elif ranks.get('A') and ranks.get('2') and ranks.get('3') and ranks.get('4') and ranks.get('5'):
+            straight = True
+            straight_rank = '5'
+            break
     
-    # Check for three of a kind
-    for card in all_cards:
-        if all_cards.count(card) == 3:
-            return f"Three of a kind: {card[0]}s"
-    
-    # Check for straight
-    values = sorted([int(card[:-1]) for card in all_cards])
-    for i in range(len(values)-4):
-        if values[i:i+5] == list(range(values[i], values[i]+5)):
-            return "Straight"
-    
-    # Check for flush
-    suits = [card[-1] for card in all_cards]
-    for suit in "HDCS":
-        if suits.count(suit) >= 5:
-            return f"Flush ({suit})"
-    
-    # Check for full house
-    for card in all_cards:
-        if all_cards.count(card) == 3:
-            for card2 in all_cards:
-                if card != card2 and all_cards.count(card2) == 2:
-                    return f"Full house: {card[0]}s over {card2[0]}s"
+    # Check for a straight flush
+    straight_flush = False
+    if flush and straight:
+        straight_flush_cards = [card for card in cards if card[1] == flush_suit and (card[0] == straight_rank or card[0] in 'TJQKA')]
+        if len(straight_flush_cards) >= 5:
+            straight_flush = True
     
     # Check for four of a kind
-    for card in all_cards:
-        if all_cards.count(card) == 4:
-            return f"Four of a kind: {card[0]}s"
+    four_of_a_kind = False
+    four_of_a_kind_rank = None
+    for rank in ranks:
+        if ranks[rank] == 4:
+            four_of_a_kind = True
+            four_of_a_kind_rank = rank
+            break
     
-    # Check for royal flush
-    for suit in "HDCS":
-        suit_cards = [card for card in all_cards if card.endswith(suit)]
-        values = sorted([int(card[:-1]) for card in suit_cards])
-        if values == [10, 11, 12, 13, 14]:
-            return f"Royal flush ({suit})"
-        
-    # If no hand is found, return high card
-    values = sorted([int(card[:-1]) for card in all_cards])
-    return f"High card: {values[-1]}"
+    # Check for full house
+    full_house = False
+    full_house_rank1 = None
+    full_house_rank2 = None
+    for rank in ranks:
+        if ranks[rank] == 3:
+            full_house_rank1 = rank
+            for rank2 in ranks:
+                if rank2 != rank and ranks[rank2] >= 2:
+                    full_house = True
+                    full_house_rank2 = rank2
+                    break
+            if full_house:
+                break
+    
+    # Check for three of a kind
+    three_of_a_kind = False
+    three_of_a_kind_rank = None
+    for rank in ranks:
+        if ranks[rank] == 3:
+            three_of_a_kind = True
+            three_of_a_kind_rank = rank
+            break
+    
+    # Check for two pairs
+    two_pairs = False
+    pair_ranks = []
+    for rank in ranks:
+        if ranks[rank] == 2:
+            pair_ranks.append(rank)
+    if len(pair_ranks) >= 2:
+        two_pairs = True
+    
+    # Check for one pair
+    one_pair = False
+    one_pair_rank = None
+    for rank in ranks:
+        if ranks[rank] == 2:
+            one_pair = True
+            one_pair_rank = rank
+            break
+    
+    # Determine the best hand
+    if straight_flush:
+        return "Straight flush"
+    elif four_of_a_kind:
+        return "Four of a kind"
+    elif full_house:
+        return "Full house"
+    elif flush:
+        return "Flush"
+    elif straight:
+        return "Straight"
+    elif three_of_a_kind:
+        return "Three of a kind"
+    elif two_pairs:
+        return "Two pairs"
+    elif one_pair:
+        return "One pair"
+    else:
+        # If the player has no pair or better, return the highest card
+        return "High card: " + max(ranks.keys())
 
 def determine_computer():
     global dealers_hand, community_hand
+    """
+    This function checks the given player's hand and the community cards
+    to determine the best possible poker hand.
+    """
+    # Concatenate the player's and community cards
+    cards = dealers_hand + community_hand
     
-    all_cards = dealers_hand + community_hand
+    # Count the frequency of each rank and suit
+    ranks = {}
+    suits = {}
+    for card in cards:
+        rank, suit = card[0], card[1]
+        ranks[rank] = ranks.get(rank, 0) + 1
+        suits[suit] = suits.get(suit, 0) + 1
     
-    # Map face cards to their corresponding values
-    face_card_values = {"A": 14, "K": 13, "Q": 12, "J": 11, "T": 10, "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2}
-    all_cards = [f"{face_card_values.get(card[:-1], card[:-1])}{card[-1]}" for card in all_cards]
+    # Check for a flush
+    flush = False
+    for suit in suits:
+        if suits[suit] >= 5:
+            flush = True
+            flush_suit = suit
+            break
     
-    # Check for pairs
-    pairs = [card[0] for card in all_cards if all_cards.count(card) == 2]
-    if len(pairs) == 1:
-        return 20
-    elif len(pairs) == 2:
-        return 30
+    # Check for a straight
+    straight = False
+    for rank in ranks:
+        if ranks.get(rank) and ranks.get(chr(ord(rank)+1)) and ranks.get(chr(ord(rank)+2)) and ranks.get(chr(ord(rank)+3)) and ranks.get(chr(ord(rank)+4)):
+            straight = True
+            straight_rank = rank
+            break
+        elif ranks.get('A') and ranks.get('2') and ranks.get('3') and ranks.get('4') and ranks.get('5'):
+            straight = True
+            straight_rank = '5'
+            break
     
-    # Check for three of a kind
-    for card in all_cards:
-        if all_cards.count(card) == 3:
-            return 40
-    
-    # Check for straight
-    values = sorted([int(card[:-1]) for card in all_cards])
-    for i in range(len(values)-4):
-        if values[i:i+5] == list(range(values[i], values[i]+5)):
-            return 50
-    
-    # Check for flush
-    suits = [card[-1] for card in all_cards]
-    for suit in "HDCS":
-        if suits.count(suit) >= 5:
-            return 60
-    
-    # Check for full house
-    for card in all_cards:
-        if all_cards.count(card) == 3:
-            for card2 in all_cards:
-                if card != card2 and all_cards.count(card2) == 2:
-                    return 70
+    # Check for a straight flush
+    straight_flush = False
+    if flush and straight:
+        straight_flush_cards = [card for card in cards if card[1] == flush_suit and (card[0] == straight_rank or card[0] in 'TJQKA')]
+        if len(straight_flush_cards) >= 5:
+            straight_flush = True
     
     # Check for four of a kind
-    for card in all_cards:
-        if all_cards.count(card) == 4:
-            return 80
+    four_of_a_kind = False
+    four_of_a_kind_rank = None
+    for rank in ranks:
+        if ranks[rank] == 4:
+            four_of_a_kind = True
+            four_of_a_kind_rank = rank
+            break
     
-    # Check for royal flush
-    for suit in "HDCS":
-        suit_cards = [card for card in all_cards if card.endswith(suit)]
-        values = sorted([int(card[:-1]) for card in suit_cards])
-        if values == [10, 11, 12, 13, 14]:
-            return 90
-        
-    # If no hand is found, return high card
-    values = sorted([int(card[:-1]) for card in all_cards])
-    return 10
-
+    # Check for full house
+    full_house = False
+    full_house_rank1 = None
+    full_house_rank2 = None
+    for rank in ranks:
+        if ranks[rank] == 3:
+            full_house_rank1 = rank
+            for rank2 in ranks:
+                if rank2 != rank and ranks[rank2] >= 2:
+                    full_house = True
+                    full_house_rank2 = rank2
+                    break
+            if full_house:
+                break
+    
+    # Check for three of a kind
+    three_of_a_kind = False
+    three_of_a_kind_rank = None
+    for rank in ranks:
+        if ranks[rank] == 3:
+            three_of_a_kind = True
+            three_of_a_kind_rank = rank
+            break
+    
+    # Check for two pairs
+    two_pairs = False
+    pair_ranks = []
+    for rank in ranks:
+        if ranks[rank] == 2:
+            pair_ranks.append(rank)
+    if len(pair_ranks) >= 2:
+        two_pairs = True
+    
+    # Check for one pair
+    one_pair = False
+    one_pair_rank = None
+    for rank in ranks:
+        if ranks[rank] == 2:
+            one_pair = True
+            one_pair_rank = rank
+            break
+    
+    # Determine the best hand
+    if straight_flush:
+        return 90
+    elif four_of_a_kind:
+        return 80
+    elif full_house:
+        return 70
+    elif flush:
+        return 60
+    elif straight:
+        return 50
+    elif three_of_a_kind:
+        return 40
+    elif two_pairs:
+        return 30
+    elif one_pair:
+        return 20
+    else:
+        # If the player has no pair or better, return the highest card
+        return 10
+    
 def determine_computer_player():
     global players_hand, community_hand
+    """
+    This function checks the given player's hand and the community cards
+    to determine the best possible poker hand.
+    """
+    # Concatenate the player's and community cards
+    cards = players_hand + community_hand
     
-    all_cards = players_hand + community_hand
+    # Count the frequency of each rank and suit
+    ranks = {}
+    suits = {}
+    for card in cards:
+        rank, suit = card[0], card[1]
+        ranks[rank] = ranks.get(rank, 0) + 1
+        suits[suit] = suits.get(suit, 0) + 1
     
-    # Map face cards to their corresponding values
-    face_card_values = {"A": 14, "K": 13, "Q": 12, "J": 11, "T": 10, "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2}
-    all_cards = [f"{face_card_values.get(card[:-1], card[:-1])}{card[-1]}" for card in all_cards]
+    # Check for a flush
+    flush = False
+    for suit in suits:
+        if suits[suit] >= 5:
+            flush = True
+            flush_suit = suit
+            break
     
-    # Check for pairs
-    pairs = [card[0] for card in all_cards if all_cards.count(card) == 2]
-    if len(pairs) == 1:
-        return 20
-    elif len(pairs) == 2:
-        return 30
+    # Check for a straight
+    straight = False
+    for rank in ranks:
+        if ranks.get(rank) and ranks.get(chr(ord(rank)+1)) and ranks.get(chr(ord(rank)+2)) and ranks.get(chr(ord(rank)+3)) and ranks.get(chr(ord(rank)+4)):
+            straight = True
+            straight_rank = rank
+            break
+        elif ranks.get('A') and ranks.get('2') and ranks.get('3') and ranks.get('4') and ranks.get('5'):
+            straight = True
+            straight_rank = '5'
+            break
     
-    # Check for three of a kind
-    for card in all_cards:
-        if all_cards.count(card) == 3:
-            return 40
-    
-    # Check for straight
-    values = sorted([int(card[:-1]) for card in all_cards])
-    for i in range(len(values)-4):
-        if values[i:i+5] == list(range(values[i], values[i]+5)):
-            return 50
-    
-    # Check for flush
-    suits = [card[-1] for card in all_cards]
-    for suit in "HDCS":
-        if suits.count(suit) >= 5:
-            return 60
-    
-    # Check for full house
-    for card in all_cards:
-        if all_cards.count(card) == 3:
-            for card2 in all_cards:
-                if card != card2 and all_cards.count(card2) == 2:
-                    return 70
+    # Check for a straight flush
+    straight_flush = False
+    if flush and straight:
+        straight_flush_cards = [card for card in cards if card[1] == flush_suit and (card[0] == straight_rank or card[0] in 'TJQKA')]
+        if len(straight_flush_cards) >= 5:
+            straight_flush = True
     
     # Check for four of a kind
-    for card in all_cards:
-        if all_cards.count(card) == 4:
-            return 80
+    four_of_a_kind = False
+    four_of_a_kind_rank = None
+    for rank in ranks:
+        if ranks[rank] == 4:
+            four_of_a_kind = True
+            four_of_a_kind_rank = rank
+            break
     
-    # Check for royal flush
-    for suit in "HDCS":
-        suit_cards = [card for card in all_cards if card.endswith(suit)]
-        values = sorted([int(card[:-1]) for card in suit_cards])
-        if values == [10, 11, 12, 13, 14]:
-            return 90
-        
-    # If no hand is found, return high card
-    values = sorted([int(card[:-1]) for card in all_cards])
-    return 10
+    # Check for full house
+    full_house = False
+    full_house_rank1 = None
+    full_house_rank2 = None
+    for rank in ranks:
+        if ranks[rank] == 3:
+            full_house_rank1 = rank
+            for rank2 in ranks:
+                if rank2 != rank and ranks[rank2] >= 2:
+                    full_house = True
+                    full_house_rank2 = rank2
+                    break
+            if full_house:
+                break
+    
+    # Check for three of a kind
+    three_of_a_kind = False
+    three_of_a_kind_rank = None
+    for rank in ranks:
+        if ranks[rank] == 3:
+            three_of_a_kind = True
+            three_of_a_kind_rank = rank
+            break
+    
+    # Check for two pairs
+    two_pairs = False
+    pair_ranks = []
+    for rank in ranks:
+        if ranks[rank] == 2:
+            pair_ranks.append(rank)
+    if len(pair_ranks) >= 2:
+        two_pairs = True
+    
+    # Check for one pair
+    one_pair = False
+    one_pair_rank = None
+    for rank in ranks:
+        if ranks[rank] == 2:
+            one_pair = True
+            one_pair_rank = rank
+            break
+    
+    # Determine the best hand
+    if straight_flush:
+        return 90
+    elif four_of_a_kind:
+        return 80
+    elif full_house:
+        return 70
+    elif flush:
+        return 60
+    elif straight:
+        return 50
+    elif three_of_a_kind:
+        return 40
+    elif two_pairs:
+        return 30
+    elif one_pair:
+        return 20
+    else:
+        # If the player has no pair or better, return the highest card
+        return 10
 
 # Betting and Probabilities 
 # Player Betting --> WinRate --> Calling/Folding
