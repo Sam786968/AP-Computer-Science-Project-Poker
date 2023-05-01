@@ -11,7 +11,6 @@ players_hand = []
 dealers_hand = []
 community_hand = []
 
-
 # Betting and Probability Dictionaries
 deck = ['2H', '2D', '2S', '2C',
         '3H', '3D', '3S', '3C',
@@ -26,8 +25,8 @@ deck = ['2H', '2D', '2S', '2C',
         'QH', 'QD', 'QS', 'QC',
         'KH', 'KD', 'KS', 'KC',
         'AH', 'AD', 'AS', 'AC']
-
- # Determine the type of hand and playing the game.
+ 
+# Determine the type of hand and playing the game.
 def determine_player():
     global players_hand 
     global community_hand
@@ -321,7 +320,9 @@ def playing_game():
     
     # Buy in.
     player_betting()
-    determine_computer()
+    
+    # Error -- HERE
+    computer_decision()
     i = current_bet
     
     # Second Stage.
@@ -336,14 +337,16 @@ def playing_game():
         # Third and Final Stage
         if current_bet > i:
             community_hand.append(deck.pop())
+            print(f"The flop now contains {community_hand}. ")
             determine_player()
             player_betting()
-            
+            computer_decision()
             game_outcome()
         else:
             reset_game()
-            return "You folded! "
-        
+            print("You folded! ")
+            
+    # Folding outcomes and game error
     elif player_money == 100 :
         reset_game()
         return "You folded! "
@@ -352,3 +355,4 @@ def playing_game():
         return "Dealer folded! "
     else:
         print("Game error. ")
+        
