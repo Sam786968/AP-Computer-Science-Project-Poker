@@ -25,13 +25,15 @@ deck = ['2H', '2D', '2S', '2C',
         'QH', 'QD', 'QS', 'QC',
         'KH', 'KD', 'KS', 'KC',
         'AH', 'AD', 'AS', 'AC']
- 
-# Determine the type of hand and playing the game.
+
 def determine_player():
-    global players_hand 
-    global community_hand
+    global players_hand, community_hand
     
     all_cards = players_hand + community_hand
+    
+    # Map face cards to their corresponding values
+    face_card_values = {"A": 14, "K": 13, "Q": 12, "J": 11, "T": 10, "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2}
+    all_cards = [f"{face_card_values.get(card[:-1], card[:-1])}{card[-1]}" for card in all_cards]
     
     # Check for pairs
     pairs = [card[0] for card in all_cards if all_cards.count(card) == 2]
@@ -75,15 +77,19 @@ def determine_player():
         values = sorted([int(card[:-1]) for card in suit_cards])
         if values == [10, 11, 12, 13, 14]:
             return f"Royal flush ({suit})"
-
-        # If no hand is found, return high card
+        
+    # If no hand is found, return high card
     values = sorted([int(card[:-1]) for card in all_cards])
     return f"High card: {values[-1]}"
 
 def determine_computer():
-    global dealers_hand,community_hand
+    global dealers_hand, community_hand
     
     all_cards = dealers_hand + community_hand
+    
+    # Map face cards to their corresponding values
+    face_card_values = {"A": 14, "K": 13, "Q": 12, "J": 11, "T": 10, "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2}
+    all_cards = [f"{face_card_values.get(card[:-1], card[:-1])}{card[-1]}" for card in all_cards]
     
     # Check for pairs
     pairs = [card[0] for card in all_cards if all_cards.count(card) == 2]
@@ -127,15 +133,19 @@ def determine_computer():
         values = sorted([int(card[:-1]) for card in suit_cards])
         if values == [10, 11, 12, 13, 14]:
             return 90
-
-        # If no hand is found, return high card
+        
+    # If no hand is found, return high card
     values = sorted([int(card[:-1]) for card in all_cards])
     return 10
 
 def determine_computer_player():
-    global players_hand,community_hand
+    global players_hand, community_hand
     
-    all_cards = player_hand + cummunity_hand
+    all_cards = players_hand + community_hand
+    
+    # Map face cards to their corresponding values
+    face_card_values = {"A": 14, "K": 13, "Q": 12, "J": 11, "T": 10, "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2}
+    all_cards = [f"{face_card_values.get(card[:-1], card[:-1])}{card[-1]}" for card in all_cards]
     
     # Check for pairs
     pairs = [card[0] for card in all_cards if all_cards.count(card) == 2]
@@ -179,8 +189,8 @@ def determine_computer_player():
         values = sorted([int(card[:-1]) for card in suit_cards])
         if values == [10, 11, 12, 13, 14]:
             return 90
-
-        # If no hand is found, return high card
+        
+    # If no hand is found, return high card
     values = sorted([int(card[:-1]) for card in all_cards])
     return 10
 
@@ -321,7 +331,6 @@ def playing_game():
     # Buy in.
     player_betting()
     
-    # Error -- HERE
     computer_decision()
     i = current_bet
     
