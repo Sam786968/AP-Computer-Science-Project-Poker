@@ -354,6 +354,28 @@ def determine_computer_player():
 # Player Betting --> WinRate --> Calling/Folding
 # Bank, and Account Checking
 
+def computer_decision(x):
+    global current_bet,dealer_money, pot
+    
+    i = determine_computer()
+    if i < 10:
+        # Fold
+        print("The dealer folds. ")
+    elif i >= 10:
+        # Calls 
+        dealer_money -= x
+        pot += x
+        print(f"The dealer calls. The pot now has ${pot}.")  
+    elif i >= 50:
+        # Raise
+        bet_raise = random.randint(0,dealer_money)
+        y = bet_raise + x
+        pot += y
+        current_bet += bet_raise
+        print(f"The dealer raises by ${bet_raise}. The pot now has ${pot}. ")
+        player_betting()
+        pass
+
 def player_betting():
     global current_bet,player_money,current_bet,pot
     
@@ -372,10 +394,13 @@ def player_betting():
                 player_money -= bet
                 pot += bet
                 print(f"You have placed a bet of ${bet}.")
+                computer_decision(bet)
+                
+                return True
     else:
         response = input(f"The current bet is ${current_bet} and the pot is ${pot}. Would you like to pass, raise, or fold? ").lower()
         if response == "pass":
-            pass
+            return True
         elif response == "raise":
             new_bet = int(input(f"How much would you like to raise the bet to? (You have ${player_money}) "))
             if new_bet < current_bet:
@@ -390,28 +415,17 @@ def player_betting():
                 player_money -= i
                 current_bet = new_bet 
                 print(f"You have raised the bet to ${current_bet} and the pot to ${pot}.")
+                computer_decision(i)
+                return True
             elif new_bet == current_bet:
                 print("You cannot raise to the same bet. ")
                 player_betting()
-            else:
-                pass
         elif response == "fold":
             print("You have folded.")
+            return False
         else:
             print("Invalid response.")
             player_betting()
-
-def computer_decision(new_bet):
-    global current_bet,dealer_money, pot
-    
-    i = determine_computer()
-    if i >= 10:
-        # Calls 
-        
-        print(f"The dealer calls. The pot now has {pot}.")  
-    elif i >= 50:
-        # Raise
-        pass
 
 def game_outcome():
     global player_money,dealer_money,current_bet
@@ -483,58 +497,37 @@ def choice():
 def playing_game():
     global player_money,players_hand,dealer_money,dealers_hand
     
-    # Cards shuffled and game dealt. 
+    # The Flop: First three cards shuffled and game dealt. 
     random.shuffle(deck)
     print("Welcome to Texas Holdem. You be playing against the dealer to start please look at you cards and place a bet. ")
     for i in range(2):
         deal_cards()
     community_hand.append(deck.pop())
-    
-    # Buy in.
     print(f"The flop now contains {community_hand}.\nYour hand now contains {players_hand}. ")
     print(f"The calculated hand you have at this point is, {determine_player()}. ")
-    player_betting()
-    if pot > 0:
-        computer_decision()
-        i = current_bet
-        
-        # Second Stage.
+    j = player_betting()
+    i = pot
+
+    if pot > 0 and j == True:
+        # The Turn. 
         community_hand.append(deck.pop())
         print(f"The flop now contains {community_hand}.\nYour hand now contains {players_hand}. ")
         print(f"The calculated hand you have at this point is, {determine_player()}. ")
-        j = player_money
-        player_betting()
+        k = player_betting()
         
-        # Third and Final Stage
-        if current_bet > i:
-            computer_decision()
-            if i < current_bet:
-                community_hand.append(deck.pop())
-                print(f"The flop now contains {community_hand}.\nYour hand now contains {players_hand}. ")
-                print(f"The calculated hand you have at this point is, {determine_player()}. ")
-                player_betting()
-            else:
-                reset_game()
-                print("The dealer folded! ")
-                game_outcome()
-                
-        elif player_money == j:
+        # The River.
+        if pot > i and k == True:
+            community_hand.append(deck.pop())
+            print(f"The flop now contains {community_hand}.\nYour hand now contains {players_hand}. ")
+            print(f"The calculated hand you have at this point is, {determine_player()}. ")
+            player_betting()
+            game_outcome()
+        else:
             reset_game()
             print("You folded! ")
             game_outcome()
-        
-        else:
-            reset_game()
-            print("The dealer folded! ")
-            game_outcome()
     
-    elif player_money == 100:
+    else:
         reset_game()
         print("You folded! ")
         game_outcome()
-    
-    else:
-        # This is really only for debugging, this should never run.
-        print("Game error. ")
-        game_outcome()
-        
