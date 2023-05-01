@@ -321,31 +321,37 @@ def playing_game():
         community_hand.append(deck.pop())
         print(f"The flop now contains {community_hand}.\nYour hand now contains {players_hand}. ")
         print(f"The calculated hand you have at this point is, {determine_player()}. ")
+        j = player_money
         player_betting()
         
         # Third and Final Stage
         if current_bet > i:
             computer_decision()
-            community_hand.append(deck.pop())
-            print(f"The flop now contains {community_hand}.\nYour hand now contains {players_hand}. ")
-            print(f"The calculated hand you have at this point is, {determine_player()}. ")
-            player_betting()
-            if player_money == (100 - (pot/2)): 
-                computer_decision()
+            if i < current_bet:
+                community_hand.append(deck.pop())
+                print(f"The flop now contains {community_hand}.\nYour hand now contains {players_hand}. ")
+                print(f"The calculated hand you have at this point is, {determine_player()}. ")
+                player_betting()
+            else:
+                reset_game()
+                print("The dealer folded! ")
                 game_outcome()
-        
-        elif player_money == (100 - (pot/2)):
+                
+        elif player_money == j:
             reset_game()
             print("You folded! ")
             game_outcome()
+        
         else:
             reset_game()
             print("The dealer folded! ")
             game_outcome()
+    
     elif player_money == 100:
         reset_game()
         print("You folded! ")
         game_outcome()
+    
     else:
         # This is really only for debugging, this should never run.
         print("Game error. ")
