@@ -1,12 +1,38 @@
+import math
 import random
-from variables import *
+# from variables import *
+
+# Variables for all code.
+current_bet = 0
+player_money = 100
+dealer_money = 100
+
+players_hand = []
+dealers_hand = []
+community_hand = []
+
+
+# Betting and Probability Dictionaries
+deck = ['2H', '2D', '2S', '2C',
+        '3H', '3D', '3S', '3C',
+        '4H', '4D', '4S', '4C',
+        '5H', '5D', '5S', '5C',
+        '6H', '6D', '6S', '6C',
+        '7H', '7D', '7S', '7C',
+        '8H', '8D', '8S', '8C',
+        '9H', '9D', '9S', '9C',
+        'TH', 'TD', 'TS', 'TC',
+        'JH', 'JD', 'JS', 'JC',
+        'QH', 'QD', 'QS', 'QC',
+        'KH', 'KD', 'KS', 'KC',
+        'AH', 'AD', 'AS', 'AC']
 
  # Determine the type of hand and playing the game.
 def determine_player():
-    global players_hand
+    global players_hand 
     global community_hand
     
-    all_cards = players_hand + cummunity_hand
+    all_cards = players_hand + community_hand
     
     # Check for pairs
     pairs = [card[0] for card in all_cards if all_cards.count(card) == 2]
@@ -56,10 +82,61 @@ def determine_player():
     return f"High card: {values[-1]}"
 
 def determine_computer():
-    global dealers_hand
-    global community_hand
+    global dealers_hand,community_hand
     
-    all_cards = dealers_hand + cummunity_hand
+    all_cards = dealers_hand + community_hand
+    
+    # Check for pairs
+    pairs = [card[0] for card in all_cards if all_cards.count(card) == 2]
+    if len(pairs) == 1:
+        return 20
+    elif len(pairs) == 2:
+        return 30
+    
+    # Check for three of a kind
+    for card in all_cards:
+        if all_cards.count(card) == 3:
+            return 40
+    
+    # Check for straight
+    values = sorted([int(card[:-1]) for card in all_cards])
+    for i in range(len(values)-4):
+        if values[i:i+5] == list(range(values[i], values[i]+5)):
+            return 50
+    
+    # Check for flush
+    suits = [card[-1] for card in all_cards]
+    for suit in "HDCS":
+        if suits.count(suit) >= 5:
+            return 60
+    
+    # Check for full house
+    for card in all_cards:
+        if all_cards.count(card) == 3:
+            for card2 in all_cards:
+                if card != card2 and all_cards.count(card2) == 2:
+                    return 70
+    
+    # Check for four of a kind
+    for card in all_cards:
+        if all_cards.count(card) == 4:
+            return 80
+    
+    # Check for royal flush
+    for suit in "HDCS":
+        suit_cards = [card for card in all_cards if card.endswith(suit)]
+        values = sorted([int(card[:-1]) for card in suit_cards])
+        if values == [10, 11, 12, 13, 14]:
+            return 90
+
+        # If no hand is found, return high card
+    values = sorted([int(card[:-1]) for card in all_cards])
+    return 10
+
+def determine_computer_player():
+    global players_hand,community_hand
+    
+    all_cards = player_hand + cummunity_hand
     
     # Check for pairs
     pairs = [card[0] for card in all_cards if all_cards.count(card) == 2]
@@ -113,9 +190,7 @@ def determine_computer():
 # Bank, and Account Checking
 
 def player_betting():
-    global current_bet
-    global player_money
-    global current_bet
+    global current_bet,player_money,current_bet
     
     if current_bet == 0:
         response = input("Would you like to place a bet? (yes/no) ").lower()
@@ -159,52 +234,49 @@ def player_betting():
             betting()
 
 def computer_decision():
-    global current_bet
-    global dealer_money
+    global current_bet,dealer_money
     
     i = determine_computer()
     if i == 10:
-        pass 
-    if i>= 20:
+        # Fold
+        print("The dealer folds. ")   
+        current_bet = 0 
+    elif i >= 20: 
+        # Call
+        dealer_money -= current_bet
+        current_bet *= 2
+    # elif i >= 80:
+    #     # Raise
+    else:
         pass
-    if i>= 50:
-        pass
-    if i>= 80:
-        pass
-    if i>= 90:
-        pass
-    
 
 def game_outcome():
-    if i > 10:
+    global player_money,dealer_money,current_bet
+    
+    if determine_computer() > determine_computer_player():
         print("The dealer wins!")
         dealer_money += current_bet
+        player_money -= current_bet
         current_bet = 0
-    elif i >:
+    elif determine_computer() < determine_computer_player():
         print("The player wins!")
         dealer_money -= current_bet
+        players_money += current_bet
         current_bet = 0
-    
-    if dealer_money < current_bet:
-        print("The dealer does not have enough money to match the current bet.")
-        current_bet = 0
+    # elif determine_computer() == determine_computer_player():
+         
+        
+    else:
+        print("Game error. ")
 
 def deal_cards():
-    global players_hand
-    global dealers_hand
-    global community_hand
-    
+    global players_hand,dealers_hand,community_hand
     players_hand.append(deck.pop())
     dealers_hand.append(deck.pop())
     community_hand.append(deck.pop())
 
 def reset_game():
-    global player_money
-    global players_hand 
-    global dealer_money
-    global dealers_hand
-    global current_bet
-    global community_hand
+    global player_money,players_hand,dealer_money,dealers_hand,current_bet, community_hand, deck
 
     player_money = 100
     players_hand = []
@@ -212,6 +284,19 @@ def reset_game():
     dealers_hand = []
     current_bet = 0
     community_hand = []
+    deck = ['2H', '2D', '2S', '2C',
+        '3H', '3D', '3S', '3C',
+        '4H', '4D', '4S', '4C',
+        '5H', '5D', '5S', '5C',
+        '6H', '6D', '6S', '6C',
+        '7H', '7D', '7S', '7C',
+        '8H', '8D', '8S', '8C',
+        '9H', '9D', '9S', '9C',
+        'TH', 'TD', 'TS', 'TC',
+        'JH', 'JD', 'JS', 'JC',
+        'QH', 'QD', 'QS', 'QC',
+        'KH', 'KD', 'KS', 'KC',
+        'AH', 'AD', 'AS', 'AC']
 
 def choice():
     play = input("Would you like to play texas holdem? (yes/no)\n").lower() 
@@ -225,10 +310,7 @@ def choice():
         choice()
 
 def playing_game():
-    global player_money
-    global players_hand 
-    global dealer_money
-    global dealers_hand
+    global player_money,players_hand,dealer_money,dealers_hand
     
     # Cards shuffled and game dealt. 
     random.shuffle(deck)
@@ -236,20 +318,20 @@ def playing_game():
     for i in range(2):
         deal_cards()
     community_hand.append(deck.pop())
+    
     # Buy in.
     player_betting()
     determine_computer()
-    
-    
     i = current_bet
+    
     # Second Stage.
-    if current_bet > 0:
+    if player_money < 100:
         print(f"Your hand is, {players_hand}. ")
         community_hand.append(deck.pop())
         print(f"The flop now contains {community_hand}. ")
         determine_player()
         player_betting()
-        
+        computer_decision()
         
         # Third and Final Stage
         if current_bet > i:
@@ -257,10 +339,16 @@ def playing_game():
             determine_player()
             player_betting()
             
-            
+            game_outcome()
         else:
             reset_game()
             return "You folded! "
-    else:
+        
+    elif player_money == 100 :
         reset_game()
         return "You folded! "
+    elif dealer_money == 100:
+        reset_game()
+        return "Dealer folded! "
+    else:
+        print("Game error. ")
