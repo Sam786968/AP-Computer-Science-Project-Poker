@@ -1,7 +1,8 @@
-import math
 import random
+from betting import *
 from variables import *
 
+# This function allows the player to see their hand.
 def determine_player():
     global players_hand, community_hand
     """
@@ -118,6 +119,7 @@ def determine_player():
         # If the player has no pair or better, return the highest card
         return "High card: " + max(ranks.keys())
 
+# This function allows for the computer to interpret its hand.
 def determine_computer():
     global dealers_hand, community_hand
     """
@@ -215,25 +217,26 @@ def determine_computer():
     
     # Determine the best hand
     if straight_flush:
-        return 90
+        return [90, max(ranks.keys())]
     elif four_of_a_kind:
-        return 80
+        return [80, max(ranks.keys())]
     elif full_house:
-        return 70
+        return [70, max(ranks.keys())]
     elif flush:
-        return 60
+        return [60, max(ranks.keys())]
     elif straight:
-        return 50
+        return [50, max(ranks.keys())]
     elif three_of_a_kind:
-        return 40
+        return [40, max(ranks.keys())]
     elif two_pairs:
-        return 30
+        return [30, max(ranks.keys())]
     elif one_pair:
-        return 20
+        return [20, max(ranks.keys())]
     else:
         # If the player has no pair or better, return the highest card
-        return 10
+        return [10, max(ranks.keys())]
     
+# This function allows for the computer to decide who wins by interpreting the player's hand. 
 def determine_computer_player():
     global players_hand, community_hand
     """
@@ -331,53 +334,61 @@ def determine_computer_player():
     
     # Determine the best hand
     if straight_flush:
-        return 90
+        return [90, max(ranks.keys())]
     elif four_of_a_kind:
-        return 80
+        return [80, max(ranks.keys())]
     elif full_house:
-        return 70
+        return [70, max(ranks.keys())]
     elif flush:
-        return 60
+        return [60, max(ranks.keys())]
     elif straight:
-        return 50
+        return [50, max(ranks.keys())]
     elif three_of_a_kind:
-        return 40
+        return [40, max(ranks.keys())]
     elif two_pairs:
-        return 30
+        return [30, max(ranks.keys())]
     elif one_pair:
-        return 20
+        return [20, max(ranks.keys())]
     else:
         # If the player has no pair or better, return the highest card
-        return 10
+        return [10, max(ranks.keys())]
 
-# Betting and Probabilities 
-# Player Betting --> WinRate --> Calling/Folding
-# Bank, and Account Checking
-
+# This function is for the computer to decide whether to raise or 
 def computer_decision(x):
-    global current_bet,dealer_money, pot
+    global current_bet,dealer_money, pot, player_money
     
     i = determine_computer()
-    if i < 10:
+    if i[0] < 10:
         # Fold
         print("The dealer folds. ")
-    elif i >= 10:
+    elif i[0] >= 10:
         # Calls 
         dealer_money -= x
         pot += x
         print(f"The dealer calls. The pot now has ${pot}.")  
-    elif i >= 50:
+    elif i[0] >= 50:
         # Raise
         bet_raise = random.randint(0,dealer_money)
         y = bet_raise + x
         pot += y
+        dealer_money -= y
         current_bet += bet_raise
         print(f"The dealer raises by ${bet_raise}. The pot now has ${pot}. ")
-        player_betting()
-        pass
-
+        
+        # Player interaction.
+        response = input("Would you like to call or fold? ").lower()
+        if response == "call":
+            player_money -= bet_raise
+            pot += bet_raise
+            print("You called. ")
+        elif response == "fold":
+            reset_game()
+            print("You folded! ")
+            return False
+         
+# This allows the player to bet.
 def player_betting():
-    global current_bet,player_money,current_bet,pot
+    global current_bet,player_money,pot
     
     if current_bet == 0:
         response = input("Would you like to place a bet? (yes/no) ").lower()
@@ -395,7 +406,6 @@ def player_betting():
                 pot += bet
                 print(f"You have placed a bet of ${bet}.")
                 computer_decision(bet)
-                
                 return True
     else:
         response = input(f"The current bet is ${current_bet} and the pot is ${pot}. Would you like to pass, raise, or fold? ").lower()
@@ -427,38 +437,59 @@ def player_betting():
             print("Invalid response.")
             player_betting()
 
-def game_outcome():
-    global player_money,dealer_money,current_bet
+# This determines the outcome of the game. 
+def game_outcome(fold):
+    global player_money,dealer_money,current_bet,community_hand,players_hand
     
-    if determine_computer() > determine_computer_player():
+    temp1 = determine_computer()
+    temp2 = determine_computer_player()
+    
+    if temp1[0] > temp2[0] or fold == True:
         print("The dealer wins!")
-        dealer_money += current_bet
-        player_money -= current_bet
+        print(f"The dealer's hand had {dealers_hand}, the community hand had {community_hand}, and your hand had {players_hand}. ")
+        dealer_money += pot
         current_bet = 0
-        if choice() == True:
-            playing_game()
-        elif choice() == False:
-            pass
-    elif determine_computer() < determine_computer_player():
+        choice()
+    elif temp1[0] < temp2[0]:
         print("The player wins!")
-        dealer_money -= current_bet
-        players_money += current_bet
+        print(f"The dealer's hand had {dealers_hand}, the community hand had {community_hand}, and your hand had {players_hand}. ")
+        player_money += pot
         current_bet = 0
-        if choice() == True:
-            playing_game()
-        elif choice() == False:
-            pass
-    elif determine_computer() == determine_computer_player():
-        pass
+        choice()
+    elif temp1[0] == temp2[0]:
+        card_values = {'2': 2,'3': 3,'4': 4,'5': 5,'6': 6,'7': 7,'8': 8,'9': 9,'T': 10,'J': 11,'Q': 12,'K': 13,'A': 14}
+        if card_values[temp1[1]] > card_values[temp2[1]]:
+            print("The dealer wins!")
+            print(f"The dealer's hand had {dealers_hand}, the community hand had {community_hand}, and your hand had {players_hand}. ")
+            dealer_money += pot
+            current_bet = 0
+            choice()
+        elif card_values[temp1[1]] < card_values[temp2[1]]:
+            print("The player wins!")
+            print(f"The dealer's hand had {dealers_hand}, the community hand had {community_hand}, and your hand had {players_hand}. ")
+            player_money += pot
+            current_bet = 0
+            choice()
+        else:
+            print("You both win!")
+            print(f"The dealer's hand had {dealers_hand}, the community hand had {community_hand}, and your hand had {players_hand}. ")
+            k = pot / 2
+            player_money += k
+            dealer_money += k
+            current_bet = 0
+            choice()
     else:
         print("Game error. ")
-
+        
+# This funtion abstracts some card dealing.
 def deal_cards():
     global players_hand,dealers_hand,community_hand
+    
     players_hand.append(deck.pop())
     dealers_hand.append(deck.pop())
     community_hand.append(deck.pop())
 
+# This function resets the game if the player wants to end play.
 def reset_game():
     global player_money,players_hand,dealer_money,dealers_hand,current_bet, community_hand, deck, pot
 
@@ -483,22 +514,24 @@ def reset_game():
         'KH', 'KD', 'KS', 'KC',
         'AH', 'AD', 'AS', 'AC']
 
+# This tracks if the player still wants to play.
 def choice():
-    play = input("Would you like to play texas holdem? (yes/no)\n").lower() 
+    play = input("Would you like to play texas holdem (again)? (yes/no)\n").lower() 
     if play in ["yes", "y"]:
-        return True
+        playing_game()
     elif play in ["no", "n"]:
         reset_game()
-        return False
     else:
         print("Please input a valid response. \n")
         choice()
 
+# This runs all the functions in order, for a game of texas holdem to take place.
 def playing_game():
     global player_money,players_hand,dealer_money,dealers_hand
     
     # The Flop: First three cards shuffled and game dealt. 
     random.shuffle(deck)
+    print("\n--------------\n")
     print("Welcome to Texas Holdem. You be playing against the dealer to start please look at you cards and place a bet. ")
     for i in range(2):
         deal_cards()
@@ -507,27 +540,30 @@ def playing_game():
     print(f"The calculated hand you have at this point is, {determine_player()}. ")
     j = player_betting()
     i = pot
-
+    print("\n--------------\n")
+    
     if pot > 0 and j == True:
         # The Turn. 
         community_hand.append(deck.pop())
         print(f"The flop now contains {community_hand}.\nYour hand now contains {players_hand}. ")
         print(f"The calculated hand you have at this point is, {determine_player()}. ")
         k = player_betting()
+        print("\n--------------\n")
         
         # The River.
-        if pot > i and k == True:
+        if pot > i or k == True:
             community_hand.append(deck.pop())
             print(f"The flop now contains {community_hand}.\nYour hand now contains {players_hand}. ")
             print(f"The calculated hand you have at this point is, {determine_player()}. ")
-            player_betting()
-            game_outcome()
+            o = player_betting()
+            if o == True:
+                game_outcome(False)
+            else:
+                print("You folded! ")
+                game_outcome(True)
         else:
-            reset_game()
             print("You folded! ")
-            game_outcome()
-    
+            game_outcome(True)
     else:
-        reset_game()
         print("You folded! ")
-        game_outcome()
+        game_outcome(True)

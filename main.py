@@ -1,6 +1,6 @@
-from betting_and_play import *
+from game import *
 
-# Ap CompSci Principles -- Sam Zajczenko -- Texas Holdem
+# Ap CompSci Principles -- Texas Holdem
 # This program simulates playing texas holdem poker with a dealer.
 
 playing_game()
