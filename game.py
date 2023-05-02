@@ -1,5 +1,4 @@
 import random
-from betting import *
 from variables import *
 
 # This function allows the player to see their hand.
